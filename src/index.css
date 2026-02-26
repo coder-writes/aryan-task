@@ -33,6 +33,6 @@
   }
 
   .text-glow {
-    @apply drop-shadow-[0_0_8px_rgba(198, 241, 53, 0.3)];
+    filter: drop-shadow(0 0 8px rgba(198, 241, 53, 0.3));
   }
 }

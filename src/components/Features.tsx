@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { Scan, BarChart3, Shield, BrainCircuit } from 'lucide-react';
+import { Scan, BarChart3, Shield, BrainCircuit, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/src/lib/utils';
 
 const features = [
@@ -9,6 +10,7 @@ const features = [
       'Computer vision analyzes every rep through phone or CCTV cameras, delivering real-time movement feedback with joint-level precision.',
     icon: Scan,
     highlighted: true,
+    link: null,
   },
   {
     title: 'Smart Rep Scoring',
@@ -16,6 +18,7 @@ const features = [
       'AI-driven quality scoring turns movement into measurable data — coaches benchmark progress and maintain execution standards automatically.',
     icon: BarChart3,
     highlighted: false,
+    link: null,
   },
   {
     title: 'Predictive Fatigue Analytics',
@@ -23,6 +26,7 @@ const features = [
       'Machine learning detects compensations and instability patterns early, enabling proactive injury prevention and recovery optimization.',
     icon: Shield,
     highlighted: false,
+    link: null,
   },
   {
     title: 'Adaptive AI Coaching',
@@ -30,6 +34,7 @@ const features = [
       'Neural networks personalize coaching at scale — premium gyms, studios and sports organizations deliver data-driven guidance without extra hardware.',
     icon: BrainCircuit,
     highlighted: false,
+    link: '/adaptive-coaching',
   },
 ];
 
@@ -99,6 +104,16 @@ export const Features = () => {
               <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm flex-grow">
                 {feature.description}
               </p>
+
+              {feature.link && (
+                <Link
+                  to={feature.link}
+                  className="inline-flex items-center gap-2 mt-5 text-sm font-bold text-accent hover:gap-3 transition-all duration-300"
+                >
+                  Try AI Coach
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
 
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/5 blur-3xl rounded-full group-hover:bg-accent/10 transition-all duration-500" />
