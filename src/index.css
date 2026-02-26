@@ -1,11 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  
+
   --color-background: #f8fafc;
+  --color-background-dark: #0f172a;
   --color-accent: #C6F135;
   --color-accent-hover: #b3db2e;
   --color-slate-gray: #1E293B;
@@ -14,19 +17,22 @@
 @layer base {
   body {
     @apply bg-background text-slate-900 font-sans antialiased selection:bg-accent/30 selection:text-accent;
+    @apply dark:bg-background-dark dark:text-slate-100;
   }
 }
 
 @layer utilities {
   .glass {
     @apply bg-white/40 backdrop-blur-md border border-slate-200/60 shadow-sm;
+    @apply dark:bg-white/5 dark:border-white/10 dark:shadow-none;
   }
-  
+
   .card-gradient {
     @apply bg-gradient-to-br from-white/70 to-slate-50/50 border border-slate-200/70;
+    @apply dark:from-white/5 dark:to-slate-900/50 dark:border-white/10;
   }
 
   .text-glow {
-    @apply drop-shadow-[0_0_8px_rgba(198,241,53,0.3)];
+    @apply drop-shadow-[0_0_8px_rgba(198, 241, 53, 0.3)];
   }
 }

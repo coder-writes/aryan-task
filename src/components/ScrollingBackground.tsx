@@ -1,71 +1,134 @@
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { useEffect, useMemo, useState } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const frameModules = import.meta.glob('../../ezgif-387d6469b51122f2-jpg/*.jpg', {
   eager: true,
   import: 'default',
 }) as Record<string, string>;
 
-const frames = Object.entries(frameModules)
+const framePaths = Object.entries(frameModules)
   .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
   .map(([, path]) => path);
 
 export const ScrollingBackground = () => {
   const { scrollYProgress } = useScroll();
-  const prefersReducedMotion = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
-  const [activeFrame, setActiveFrame] = useState(0);
-  const frameSet = useMemo(
-    () => (isMobile ? frames.filter((_, index) => index % 2 === 0) : frames),
-    [isMobile]
-  );
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [-170, 170]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const currentFrameRef = useRef(0);
+  const rafRef = useRef<number>(0);
 
+  // Preload all frames
   useEffect(() => {
-    const updateViewport = () => setIsMobile(window.innerWidth < 768);
-    updateViewport();
-    window.addEventListener('resize', updateViewport);
-    return () => window.removeEventListener('resize', updateViewport);
+    let cancelled = false;
+    const images: HTMLImageElement[] = [];
+    let loadedCount = 0;
+
+    framePaths.forEach((src, i) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        loadedCount++;
+        if (!cancelled && loadedCount === framePaths.length) {
+          imagesRef.current = images;
+          setLoaded(true);
+        }
+      };
+      img.onerror = () => {
+        loadedCount++;
+      };
+      images[i] = img;
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (prefersReducedMotion || frameSet.length <= 1) {
-      return;
-    }
+  // Draw frame to canvas
+  const drawFrame = useCallback((index: number) => {
+    const canvas = canvasRef.current;
+    const img = imagesRef.current[index];
+    if (!canvas || !img) return;
 
-    const cycles = isMobile ? 1.1 : 1.25;
-    const index = Math.floor(latest * (frameSet.length - 1) * cycles) % frameSet.length;
-    setActiveFrame((prev) => (prev === index ? prev : index));
-  });
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
+    // Cover-fit the image
+    const canvasW = canvas.width;
+    const canvasH = canvas.height;
+    const imgW = img.naturalWidth;
+    const imgH = img.naturalHeight;
+
+    const scale = Math.max(canvasW / imgW, canvasH / imgH);
+    const drawW = imgW * scale;
+    const drawH = imgH * scale;
+    const drawX = (canvasW - drawW) / 2;
+    const drawY = (canvasH - drawH) / 2;
+
+    ctx.clearRect(0, 0, canvasW, canvasH);
+    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+  }, []);
+
+  // Resize canvas to match window
   useEffect(() => {
-    setActiveFrame(0);
-  }, [frameSet]);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  const currentFrame = useMemo(() => frameSet[activeFrame] ?? frameSet[0] ?? '', [activeFrame, frameSet]);
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight * 1.15;
+      if (loaded) drawFrame(currentFrameRef.current);
+    };
 
-  if (!currentFrame) {
-    return null;
-  }
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, [loaded, drawFrame]);
+
+  // Update frame on scroll
+  useEffect(() => {
+    if (!loaded) return;
+
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
+      const totalFrames = framePaths.length;
+      const index = Math.min(
+        Math.floor(latest * (totalFrames - 1)),
+        totalFrames - 1
+      );
+
+      if (index !== currentFrameRef.current) {
+        currentFrameRef.current = index;
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = requestAnimationFrame(() => drawFrame(index));
+      }
+    });
+
+    // Draw first frame
+    drawFrame(0);
+
+    return () => {
+      unsubscribe();
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [loaded, scrollYProgress, drawFrame]);
+
+  if (framePaths.length === 0) return null;
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      <AnimatePresence mode="wait">
-        <motion.img
-          key={currentFrame}
-          src={currentFrame}
-          alt=""
-          initial={{ opacity: 0.15 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0.15 }}
-          transition={{ duration: 0.32, ease: 'easeOut' }}
-          className="absolute inset-0 h-[118%] w-full object-cover saturate-110 contrast-110"
-          style={{ y: parallaxY }}
-        />
-      </AnimatePresence>
-      <div className="absolute inset-0 bg-white/18" />
-      <div className="absolute inset-0 bg-gradient-to-b from-white/12 via-white/6 to-white/32" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,transparent_0%,rgba(248,250,252,0.45)_75%)]" />
+      <motion.canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-[115%] saturate-110 contrast-110"
+        style={{ y: parallaxY }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: loaded ? 1 : 0 }}
+        transition={{ duration: 0.6 }}
+      />
+      <div className="absolute inset-0 bg-white/15 dark:bg-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/5 to-white/30 dark:from-black/20 dark:via-black/10 dark:to-black/50" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,transparent_0%,rgba(248,250,252,0.4)_75%)] dark:bg-[radial-gradient(circle_at_50%_20%,transparent_0%,rgba(15,23,42,0.6)_75%)]" />
     </div>
   );
 };

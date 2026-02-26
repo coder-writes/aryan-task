@@ -33,7 +33,7 @@ export const Testimonials = () => {
         title="Trusted by Coaches and Performers"
         subtitle="From elite training floors to premium studios, teams use Genyx to deliver safer and smarter sessions."
       />
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {testimonials.map((t, i) => (
           <motion.div
@@ -45,7 +45,7 @@ export const Testimonials = () => {
             className="glass p-8 rounded-3xl relative"
           >
             <Quote className="absolute top-6 right-8 w-10 h-10 text-accent/10" />
-            
+
             <div className="flex items-center gap-4 mb-6">
               <img
                 src={t.avatar}
@@ -58,8 +58,8 @@ export const Testimonials = () => {
                 <p className="text-xs text-accent font-mono uppercase tracking-wider">{t.role}</p>
               </div>
             </div>
-            
-            <p className="text-slate-600 italic leading-relaxed">
+
+            <p className="text-slate-600 dark:text-slate-400 italic leading-relaxed">
               "{t.content}"
             </p>
           </motion.div>
