@@ -182,7 +182,7 @@ export const AdaptiveCoaching = () => {
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                                     <span className="text-xs text-slate-500 dark:text-slate-400 font-mono uppercase tracking-wider">
-                                        Online — Gemini 2.0
+                                        Online — AI Coach
                                     </span>
                                 </div>
                             </div>
@@ -228,8 +228,8 @@ export const AdaptiveCoaching = () => {
 
                             <div
                                 className={`max-w-[80%] rounded-2xl px-5 py-4 text-sm leading-relaxed ${message.role === 'user'
-                                        ? 'bg-accent text-black rounded-br-md font-medium'
-                                        : 'glass rounded-bl-md'
+                                    ? 'bg-accent text-black rounded-br-md font-medium'
+                                    : 'glass rounded-bl-md'
                                     }`}
                             >
                                 <div className="space-y-1">{formatContent(message.content)}</div>
