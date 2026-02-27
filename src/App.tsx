@@ -1,12 +1,15 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Features } from './components/Features';
 import { Testimonials } from './components/Testimonials';
 import { Footer } from './components/Footer';
 import { ScrollingBackground } from './components/ScrollingBackground';
+import { AdaptiveCoaching } from './components/AdaptiveCoaching';
+import { ThemeProvider } from './lib/ThemeContext';
 import { motion, useScroll, useSpring } from 'motion/react';
 
-export default function App() {
+function HomePage() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -15,7 +18,7 @@ export default function App() {
   });
 
   return (
-    <div className="relative isolate bg-background text-slate-900 selection:bg-accent/30 selection:text-accent overflow-x-hidden">
+    <div className="relative isolate bg-background dark:bg-background-dark text-slate-900 dark:text-slate-100 selection:bg-accent/30 selection:text-accent overflow-x-hidden transition-colors duration-300">
       <ScrollingBackground />
 
       <motion.div
@@ -35,5 +38,18 @@ export default function App() {
         <Footer />
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/adaptive-coaching" element={<AdaptiveCoaching />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }

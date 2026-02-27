@@ -24,7 +24,7 @@ export const SectionHeader = ({ title, subtitle, className, align = 'center' }: 
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.1 }}
-        className="text-3xl md:text-5xl font-bold tracking-tight mb-4"
+        className="text-3xl md:text-5xl font-bold tracking-tight mb-4 dark:text-white"
       >
         {title}
       </motion.h2>
@@ -34,7 +34,7 @@ export const SectionHeader = ({ title, subtitle, className, align = 'center' }: 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="text-slate-600 max-w-2xl mx-auto text-lg"
+          className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg"
         >
           {subtitle}
         </motion.p>

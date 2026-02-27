@@ -21,7 +21,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-slate-600 mt-6 max-w-3xl mx-auto text-base sm:text-lg"
+            className="text-white dark:text-slate-300 mt-6 max-w-3xl mx-auto text-base sm:text-lg"
           >
             Real-time computer vision for form correction, rep quality scoring, fatigue analytics, and adaptive coaching through phone or CCTV cameras.
           </motion.p>
@@ -73,7 +73,7 @@ const StatCard = ({ icon, title, value, delay }: { icon: React.ReactNode, title:
     <div className="bg-accent/15 w-fit p-2 rounded-xl">
       {icon}
     </div>
-    <div className="text-slate-500 text-xs uppercase font-bold tracking-widest">{title}</div>
-    <div className="text-lg font-semibold">{value}</div>
+    <div className="text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-widest">{title}</div>
+    <div className="text-lg font-semibold dark:text-white">{value}</div>
   </motion.div>
 );
